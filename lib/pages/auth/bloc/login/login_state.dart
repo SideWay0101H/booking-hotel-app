@@ -1,10 +1,18 @@
-import 'package:equatable/equatable.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+part of 'login_bloc.dart';
 
 class LoginState extends Equatable {
   final String email;
   final String password;
-
-  const LoginState({ this.email = "",  this.password = ""});
+  const LoginState({
+    this.email = "",
+    this.password = "",
+  });
+  @override
+  List<Object?> get props => [
+        email,
+        password,
+      ];
 
   LoginState copyWith({
     String? email,
@@ -15,23 +23,4 @@ class LoginState extends Equatable {
       password: password ?? this.password,
     );
   }
-
-  @override
-  List<Object> get props => [email,password];
-}
-
-class LoginInit extends LoginState {}
-
-class LoginLoading extends LoginState {}
-
-class LoginSuccess extends LoginState {}
-
-// class AdminLoginSucess extends LoginState {}
-
-class LoginError extends LoginState {
-  final String message;
-  const LoginError({required this.message});
-
-  @override
-  List<Object> get props => [message];
 }
