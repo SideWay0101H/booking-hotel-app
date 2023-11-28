@@ -1,35 +1,62 @@
+import 'dart:convert';
+
 import 'package:booking_hotel_ui/core/global.dart';
-import 'package:booking_hotel_ui/core/url.dart';
-import 'package:booking_hotel_ui/pages/auth/bloc/login/login_event.dart';
-import 'package:booking_hotel_ui/pages/auth/bloc/login/login_state.dart';
-import 'package:booking_hotel_ui/services/api_base.dart';
+import 'package:booking_hotel_ui/pages/Home/HomePage.dart';
+import 'package:booking_hotel_ui/pages/auth/bloc/login/login_model.dart';
+import 'package:dio/dio.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final ApiBase _apiBase = ApiBase();
-  LoginBloc() : super(LoginInit()) {
-    on<EmailEvent>(_emailEvent);
-    on<PasswordEvent>(_passwordEvent);
-    // on<LoginbtnPressed>(_loginButtonPressed);
+part 'login_state.dart';
+
+class LoginBloc extends Cubit<LoginState> {
+  LoginBloc() : super(const LoginState());
+
+  Dio dio = Dio();
+
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passController = TextEditingController();
+
+  void onLoginButton(BuildContext context) async {
+    final result = await login(emailController.text, passController.text);
+    if (result != null) {
+      //TODO: di chuyển đến trang home
+      debugPrint('thành công');
+      Global.sharedServices.setStringValue("token", result.accessToken??"");
+      Global.sharedServices.setStringValue("refresh_token", result.refreshToken??"");
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+          (route) => true);
+    } else {
+      // TODO: trả về lỗi
+      debugPrint('lỗi');
+    }
   }
 
-  void _emailEvent(EmailEvent event, Emitter<LoginState> emit) {
-    emit(state.copyWith(email: state.email));
-  }
-
-  void _passwordEvent(PasswordEvent event, Emitter<LoginState> emit) {
-    emit(state.copyWith(password: state.password));
-  }
-
-  void _loginButtonPressed(
-      LoginButtonPressed event, Emitter<LoginState> emit) async {
-    emit(LoginLoading());
-
+  Future<LoginModel?> login(String email, String password) async {
+    debugPrint('Username: $email, Password: $password');
     try {
-      final data = {"email": event.email, "password": event.password};
-      final response =
-          await _apiBase.post('$baseUrl/v1/auth/login', data: data);
-      emit(LoginSuccess());
-    } catch (e) {}
+      final response = await dio.post(
+        'https://your-api.com/login',
+        data: {'email': email, 'password': password},
+      );
+
+      String jsonResponse = '''
+    {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJ6enp6emluODQxQGdtYWlsLmNvbSIsImlhdCI6MTcwMTE0MDExNH0._QXOS7cy2gPgJS6PAe0Q1WNmt3ioLUn6bmON2sH2ThY",
+        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5CI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJ6enp6emluODQxQGdtYWlsLmNvbSIsImlhdCI6MTcwMTE0MDExNCwiZXhwIjoxNzAxNzQ0OTE0fQ.EsJXnq-ABVNJqVVlTNY2f-4Mu34Cz2C4B_Se5TFpsZc"
+    }
+  ''';
+
+      Map<String, dynamic> jsonMap = json.decode(response.data);
+
+      LoginModel data = LoginModel.fromJson(jsonMap);
+
+      return data;
+    } catch (e) {
+      return null;
+    }
   }
 }

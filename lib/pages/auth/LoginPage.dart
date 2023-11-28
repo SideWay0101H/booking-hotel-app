@@ -4,8 +4,10 @@ import 'package:booking_hotel_ui/core/global.dart';
 import 'package:booking_hotel_ui/gen/fonts.gen.dart';
 import 'package:booking_hotel_ui/pages/Home/HomePage.dart';
 import 'package:booking_hotel_ui/pages/auth/RegisterPage.dart';
+import 'package:booking_hotel_ui/pages/auth/bloc/login/login_bloc.dart';
 import 'package:booking_hotel_ui/services/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,8 +18,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+
   bool _rememberMe = false;
 
   bool _isHovered = false;
@@ -47,8 +48,8 @@ class _LoginPageState extends State<LoginPage> {
 
   void _submitForm() {
     // if (_formkey.currentState!.validate()) {
-    String username = _emailController.text;
-    String password = _passwordController.text;
+    String username = "";
+    String password = "";
 
     // You can add your authentication logic here
 
@@ -76,104 +77,116 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildEmailTF() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Email',
-          style: TextStyle(
-              fontFamily: FontFamily.roboto, fontSize: 15, color: Colors.white),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  Color(0x0FF28384),
-                  Color(0xFF61A4F1),
-                  Color(0xFF478DE0),
-                  Color(0xFF398AE5)
-                ],
+    return BlocBuilder<LoginBloc, LoginState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Email',
+              style: TextStyle(
+                  fontFamily: FontFamily.roboto,
+                  fontSize: 15,
+                  color: Colors.white),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Color(0x0FF28384),
+                      Color(0xFF61A4F1),
+                      Color(0xFF478DE0),
+                      Color(0xFF398AE5)
+                    ],
+                  ),
+                  border: Border.all(width: 0.2),
+                  borderRadius: BorderRadius.circular(9)),
+              height: 60.0,
+              child: TextFormField(
+                validator: (value) {
+                  _validateEmail(value!);
+                },
+                controller: context.read<LoginBloc>().emailController,
+                keyboardType: TextInputType.emailAddress,
+                style: const TextStyle(
+                    color: Colors.white, fontFamily: FontFamily.roboto),
+                decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(top: 14.0),
+                    prefixIcon: Icon(
+                      Icons.email,
+                      color: Colors.white,
+                    ),
+                    hintText: 'Nhập email của bạn',
+                    hintStyle: TextStyle(
+                        fontSize: 13,
+                        fontFamily: FontFamily.roboto,
+                        color: Colors.white)),
               ),
-              border: Border.all(width: 0.2),
-              borderRadius: BorderRadius.circular(9)),
-          height: 60.0,
-          child: TextFormField(
-            validator: (value) {
-              _validateEmail(value!);
-            },
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            style: const TextStyle(
-                color: Colors.white, fontFamily: FontFamily.roboto),
-            decoration: const InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14.0),
-                prefixIcon: Icon(
-                  Icons.email,
-                  color: Colors.white,
-                ),
-                hintText: 'Nhập email của bạn',
-                hintStyle: TextStyle(
-                    fontSize: 13,
-                    fontFamily: FontFamily.roboto,
-                    color: Colors.white)),
-          ),
-        )
-      ],
+            )
+          ],
+        );
+      },
     );
   }
 
   Widget _buildPasswordTF() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Mật khẩu',
-          style: TextStyle(
-              fontFamily: FontFamily.roboto, fontSize: 15, color: Colors.white),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  Color(0x0ff3aef5),
-                  Color(0xFF61A4F1),
-                  Color(0xFF478DE0),
-                  Color(0xFF398AE5)
-                ],
+    return BlocBuilder<LoginBloc, LoginState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Mật khẩu',
+              style: TextStyle(
+                  fontFamily: FontFamily.roboto,
+                  fontSize: 15,
+                  color: Colors.white),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Color(0x0ff3aef5),
+                      Color(0xFF61A4F1),
+                      Color(0xFF478DE0),
+                      Color(0xFF398AE5)
+                    ],
+                  ),
+                  border: Border.all(width: 0.2),
+                  borderRadius: BorderRadius.circular(9)),
+              height: 60.0,
+              child: TextFormField(
+                validator: (value) {
+                  _validatorPassword(value!);
+                },
+                controller: context.read<LoginBloc>().passController,
+                obscureText: true,
+                style: const TextStyle(
+                    color: Colors.white, fontFamily: FontFamily.roboto),
+                decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(top: 14.0),
+                    prefixIcon: Icon(
+                      Icons.lock,
+                      color: Colors.white,
+                    ),
+                    hintText: 'Nhập email của bạn',
+                    hintStyle: TextStyle(
+                        fontSize: 13,
+                        fontFamily: FontFamily.roboto,
+                        color: Colors.white)),
               ),
-              border: Border.all(width: 0.2),
-              borderRadius: BorderRadius.circular(9)),
-          height: 60.0,
-          child: TextFormField(
-            validator: (value) {
-              _validatorPassword(value!);
-            },
-            controller: _passwordController,
-            obscureText: true,
-            style: const TextStyle(
-                color: Colors.white, fontFamily: FontFamily.roboto),
-            decoration: const InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: 14.0),
-                prefixIcon: Icon(
-                  Icons.lock,
-                  color: Colors.white,
-                ),
-                hintText: 'Nhập email của bạn',
-                hintStyle: TextStyle(
-                    fontSize: 13,
-                    fontFamily: FontFamily.roboto,
-                    color: Colors.white)),
-          ),
-        )
-      ],
+            )
+          ],
+        );
+      },
     );
   }
 
@@ -266,98 +279,107 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _btnLogin() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 25.0),
-      width: double.infinity,
-      child: GestureDetector(
-        onTap: () {
-          _submitForm();
-        },
-        child: Container(
-          height: 50,
-          padding: const EdgeInsets.all(14.0),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20), color: Colors.white),
-          child: const Center(
-            child: Text(
-              'Đăng nhập',
-              style: TextStyle(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: FontFamily.roboto,
-                  fontSize: 18),
+    return BlocBuilder<LoginBloc, LoginState>(
+      builder: (context, state) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 25.0),
+          width: double.infinity,
+          child: GestureDetector(
+            onTap: () =>context.read<LoginBloc>().onLoginButton(context),
+            child: Container(
+              height: 50,
+              padding: const EdgeInsets.all(14.0),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20), color: Colors.white),
+              child: const Center(
+                child: Text(
+                  'Đăng nhập',
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: FontFamily.roboto,
+                      fontSize: 18),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(children: [
-        Container(
-          height: double.infinity,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                Color(0x0ff3aef5),
-                Color(0xFF61A4F1),
-                Color(0xFF478DE0),
-                Color(0xFF398AE5)
-              ],
-                  stops: [
-                0.1,
-                0.4,
-                0.7,
-                0.9
-              ])),
-        ),
-        SizedBox(
-          height: double.infinity,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 40.0, vertical: 120.0),
-            child: Column(
-              children: [
-                const Text(
-                  'Đăng nhập',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: FontFamily.roboto,
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.bold),
+    return BlocProvider(
+      create: (context) => LoginBloc(),
+      child: BlocBuilder<LoginBloc, LoginState>(
+        builder: (context, state) {
+          return Scaffold(
+            body: Stack(children: [
+              Container(
+                height: double.infinity,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                      Color(0x0ff3aef5),
+                      Color(0xFF61A4F1),
+                      Color(0xFF478DE0),
+                      Color(0xFF398AE5)
+                    ],
+                        stops: [
+                      0.1,
+                      0.4,
+                      0.7,
+                      0.9
+                    ])),
+              ),
+              SizedBox(
+                height: double.infinity,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 40.0, vertical: 120.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Đăng nhập',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: FontFamily.roboto,
+                            fontSize: 30.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Form(
+                        child: Column(children: [
+                          const SizedBox(height: 30),
+                          _buildEmailTF(),
+                          const SizedBox(height: 30),
+                          _buildPasswordTF(),
+                        ]),
+                      ),
+                      _btnForgotpasswordbtn(),
+                      _buildRememberCheckBox(),
+                      _btnLogin(),
+                      _buildSigninwithText(),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          _buttonLoginFaceBook(),
+                          const SizedBox(width: 20),
+                          _buttonLoginGithub(),
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-                Form(
-                  child: Column(children: [
-                    const SizedBox(height: 30),
-                    _buildEmailTF(),
-                    const SizedBox(height: 30),
-                    _buildPasswordTF(),
-                  ]),
-                ),
-                _btnForgotpasswordbtn(),
-                _buildRememberCheckBox(),
-                _btnLogin(),
-                _buildSigninwithText(),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    _buttonLoginFaceBook(),
-                    const SizedBox(width: 20),
-                    _buttonLoginGithub(),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      ]),
+              ),
+            ]),
+          );
+        },
+      ),
     );
   }
 
